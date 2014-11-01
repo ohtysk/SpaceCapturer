@@ -270,7 +270,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     float eyez = 0;
 
 	private boolean isMove = false;
-    
+    public String log;
     /**
      * Prepares OpenGL ES before we draw a frame.
      * @param headTransform The head transformation in the new frame.
@@ -288,14 +288,30 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         // Build the Model part of the ModelView matrix.
         //Matrix.rotateM(mModelCube, 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
 
+        float [] angles = new float[3];
+        headTransform.getEulerAngles(angles, 0);
         float [] forward = new float[3];
         headTransform.getForwardVector(forward, 0);
+        float [] up = new float[3];
+        headTransform.getUpVector(up, 0);
+        float [] right = new float[3];
+        headTransform.getRightVector(right, 0);
+    	float sinh = (float) Math.sin(angles[0]);
+    	float cosh = (float) Math.cos(angles[0]);
+    	float sinp = (float) Math.sin(angles[1]);
+    	float cosp = (float) Math.cos(angles[1]);
+    	float x = sinh * cosp;
+    	float y = -sinp;
+    	float z = cosh * cosp;
+        log = String.format("forward %.3f %.3f %.3f%nright    %.3f %.3f %.3f%nup      %.3f %.3f %.3f%nangles  %.3f %.3f %.3f%n forward %.3f %.3f %.3f",
+        		forward[0], forward[1], forward[2], right[0], right[1], right[2], up[0], up[1], up[2], angles[0], angles[1], angles[2], x, y, z); 
         if (isMove) {
-        	eyex += 0.05 * forward[0];
-        	eyey += 0.05 * forward[1];
-        	eyez -= 0.05 * forward[2];
-        	Log.d("forward", forward[0] + " " + forward[1] + " " + forward[2]);
+        	eyex += 0.05 * x;
+        	eyey += 0.05 * y;
+        	eyez += 0.05 * z;
+        	Log.d("forward", x + " " + y + " " + z);
         }
+        
         
         // Build the camera matrix and apply it to the ModelView.
         Matrix.setLookAtM(mCamera, 0, 0.0f, 0.0f, CAMERA_Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);

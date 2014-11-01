@@ -110,9 +110,9 @@ public class CardboardOverlayView extends LinearLayout {
     @Override
     public boolean onTouchEvent(MotionEvent e) {
     	if (e.getAction() == MotionEvent.ACTION_UP) {
-    		mainActivity.onCardboardTrigger();
+    		//mainActivity.onCardboardTrigger();
     	}
-    	
+    	show3DToast(mainActivity.log);
 		return true;
     }
     /**
