@@ -286,30 +286,18 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         mIsFloorParam = GLES20.glGetUniformLocation(mGlProgram, "u_IsFloor");
 
         // Build the Model part of the ModelView matrix.
-        //Matrix.rotateM(mModelCube, 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
+       Matrix.rotateM(mModelCube, 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
 
-        float [] angles = new float[3];
-        headTransform.getEulerAngles(angles, 0);
         float [] forward = new float[3];
         headTransform.getForwardVector(forward, 0);
         float [] up = new float[3];
         headTransform.getUpVector(up, 0);
         float [] right = new float[3];
         headTransform.getRightVector(right, 0);
-    	float sinh = (float) Math.sin(angles[0]);
-    	float cosh = (float) Math.cos(angles[0]);
-    	float sinp = (float) Math.sin(angles[1]);
-    	float cosp = (float) Math.cos(angles[1]);
-    	float x = sinh * cosp;
-    	float y = -sinp;
-    	float z = cosh * cosp;
-        log = String.format("forward %.3f %.3f %.3f%nright    %.3f %.3f %.3f%nup      %.3f %.3f %.3f%nangles  %.3f %.3f %.3f%n forward %.3f %.3f %.3f",
-        		forward[0], forward[1], forward[2], right[0], right[1], right[2], up[0], up[1], up[2], angles[0], angles[1], angles[2], x, y, z); 
         if (isMove) {
-        	eyex += 0.05 * x;
-        	eyey += 0.05 * y;
-        	eyez += 0.05 * z;
-        	Log.d("forward", x + " " + y + " " + z);
+        	eyex += 0.05 * right[2];
+        	eyey += 0.05 * up[2];
+        	eyez -= 0.05 * forward[2];
         }
         
         
