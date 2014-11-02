@@ -158,7 +158,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay);
         mOverlayView.setMain(this);
-        mOverlayView.show3DToast("Please, tap!");
+        //mOverlayView.show3DToast("Welcome to THE WORLD!");
     }
 
     @Override
@@ -268,9 +268,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     float eyex = 0;
     float eyey = 0;
     float eyez = 0;
-
-	private boolean isMove = false;
     public String log;
+    public float speed = 0;
     /**
      * Prepares OpenGL ES before we draw a frame.
      * @param headTransform The head transformation in the new frame.
@@ -294,11 +293,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         headTransform.getUpVector(up, 0);
         float [] right = new float[3];
         headTransform.getRightVector(right, 0);
-        if (isMove) {
-        	eyex += 0.05 * right[2];
-        	eyey += 0.05 * up[2];
-        	eyez -= 0.05 * forward[2];
-        }
+       	eyex += speed * right[2];
+       	eyey += speed * up[2];
+       	eyez -= speed * forward[2];
         
         
         // Build the camera matrix and apply it to the ModelView.
@@ -416,13 +413,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     @Override
     public void onCardboardTrigger() {
         Log.i(TAG, "onCardboardTrigger");
-		if (isMove ) {
-        	isMove = false;
-            mOverlayView.show3DToast("stop to move!");
-        } else {
-        	isMove = true;
-            mOverlayView.show3DToast("start to move!");
-        }
         // Always give user feedback
         mVibrator.vibrate(50);
     }

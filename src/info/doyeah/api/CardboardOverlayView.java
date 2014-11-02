@@ -16,11 +16,18 @@
 
 package info.doyeah.api;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Handler;
+import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -34,13 +41,15 @@ import android.widget.TextView;
 /**
  * Contains two sub-views to provide a simple stereo HUD.
  */
-public class CardboardOverlayView extends LinearLayout {
+public class CardboardOverlayView extends LinearLayout implements GestureDetector.OnDoubleTapListener, OnGestureListener {
     private static final String TAG = CardboardOverlayView.class.getSimpleName();
     private final CardboardOverlayEyeView mLeftView;
     private final CardboardOverlayEyeView mRightView;
     private AlphaAnimation mTextFadeAnimation;
 	private MainActivity mainActivity;
-
+	private GestureDetector gestureDetector;
+	Handler mHandler = new Handler();
+	Time time = new Time();
     public CardboardOverlayView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setOrientation(HORIZONTAL);
@@ -58,12 +67,30 @@ public class CardboardOverlayView extends LinearLayout {
         addView(mRightView);
 
         // Set some reasonable defaults.
-        setDepthOffset(0.016f);
+        setDepthOffset(0.0016f);
         setColor(Color.rgb(150, 255, 180));
         setVisibility(View.VISIBLE);
-
+        
         mTextFadeAnimation = new AlphaAnimation(1.0f, 0.0f);
         mTextFadeAnimation.setDuration(5000);
+        gestureDetector = new GestureDetector(context, this);
+
+        Timer mTimer = new Timer();
+        
+        mTimer.schedule(new TimerTask(){
+            @Override
+            public void run() {
+                // mHandlerを通じてUI Threadへ処理をキューイング
+                mHandler.post( new Runnable() {
+                    public void run() {
+                    	time.setToNow();
+                    	String timeString = time.year + "/" + (time.month + 1) + "/" + time.monthDay
+                    	        + " " + time.hour + ":" + time.minute+ ":" + time.second;
+                    	show3DToast(timeString);
+                    }
+                });
+            }
+        }, 100, 1000);
     }
 
     public void show3DToast(String message) {
@@ -109,9 +136,7 @@ public class CardboardOverlayView extends LinearLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-    	if (e.getAction() == MotionEvent.ACTION_UP) {
-    		mainActivity.onCardboardTrigger();
-    	}
+    	gestureDetector.onTouchEvent(e);
     	//show3DToast(mainActivity.log);
 		return true;
     }
@@ -136,7 +161,7 @@ public class CardboardOverlayView extends LinearLayout {
             textView = new TextView(context, attrs);
             textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14.0f);
             textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
-            textView.setGravity(Gravity.CENTER);
+            textView.setGravity(Gravity.LEFT);
             textView.setShadowLayer(3.0f, 0.0f, 0.0f, Color.DKGRAY);
             addView(textView);
         }
@@ -185,11 +210,69 @@ public class CardboardOverlayView extends LinearLayout {
                 (int) (leftMargin + width * imageSize), (int) (topMargin + height * imageSize));
 
             // Layout TextView
-            leftMargin = offset * width;
-            topMargin = height * verticalTextPos;
+            //leftMargin = offset * width;
+            leftMargin = 100;
+            //topMargin = height * verticalTextPos;
+            topMargin = 100;
             textView.layout(
                 (int) leftMargin, (int) topMargin,
                 (int) (leftMargin + width), (int) (topMargin + height * (1.0f - verticalTextPos)));
         }
     }
+    final float UNIT_SPEED = 0.08f; 
+	@Override
+	public boolean onDoubleTap(MotionEvent e) {
+		return false;
+	}
+
+	@Override
+	public boolean onDoubleTapEvent(MotionEvent e) {
+		mainActivity.speed = - UNIT_SPEED;
+		//show3DToast("back!");
+		mainActivity.onCardboardTrigger();
+		return false;
+	}
+
+	@Override
+	public boolean onSingleTapConfirmed(MotionEvent e) {
+		if (mainActivity.speed != 0.0f) {
+			mainActivity.speed = 0.0f;
+			//show3DToast("stop!");
+		} else {
+			mainActivity.speed = UNIT_SPEED;
+			//show3DToast("go!");
+		}
+		mainActivity.onCardboardTrigger();
+		return false;
+	}
+
+	@Override
+	public boolean onDown(MotionEvent e) {
+		return false;
+	}
+
+	@Override
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+			float velocityY) {
+		return false;
+	}
+
+	@Override
+	public void onLongPress(MotionEvent e) {
+	}
+
+	@Override
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
+		return false;
+	}
+
+	@Override
+	public void onShowPress(MotionEvent e) {
+	}
+
+	@Override
+	public boolean onSingleTapUp(MotionEvent e) {
+		return false;
+	}
 }
