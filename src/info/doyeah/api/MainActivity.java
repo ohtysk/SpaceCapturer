@@ -17,23 +17,13 @@
 package info.doyeah.api;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.opengl.GLES20;
-import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
-
 import com.google.vrtoolkit.cardboard.*;
-
 import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -275,10 +265,13 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     float eyez = 0;
     public String log;
     public float speed = 0;
-    float delta = 0;
-    float x = 1;
-    float y = 1;
-    float z = 1;
+    float rotateDelta = 0;
+    float scaleX = 1;
+    float scaleY = 1;
+    float scaleZ = 1;
+    float transX = 0;
+    float transY = 0;
+    float transZ = -mObjectDistance;
     /**
      * Prepares OpenGL ES before we draw a frame.
      * @param headTransform The head transformation in the new frame.
@@ -295,14 +288,14 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         // Object first appears directly in front of user
         Matrix.setIdentityM(mModelCube, 0);
-        Matrix.translateM(mModelCube, 0, 0, 0, -mObjectDistance);
+        Matrix.translateM(mModelCube, 0, transX, transY, transZ);
         // Build the Model part of the ModelView matrix.
-        delta += TIME_DELTA;
-        x += 0.001;
-        y += 0.001;
-        z += 0.001;
-        Matrix.rotateM(mModelCube, 0, delta, 0.5f, 0.5f, 1.0f);
-        Matrix.scaleM(mModelCube, 0, x, y, z);
+        rotateDelta += TIME_DELTA;
+        scaleX += 0.001;
+        scaleY += 0.001;
+        scaleZ += 0.001;
+        Matrix.rotateM(mModelCube, 0, rotateDelta, 0.5f, 0.5f, 1.0f);
+        Matrix.scaleM(mModelCube, 0, scaleX, scaleY, scaleZ);
         float [] forward = new float[3];
         headTransform.getForwardVector(forward, 0);
         float [] up = new float[3];
