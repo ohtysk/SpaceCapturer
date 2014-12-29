@@ -17,14 +17,23 @@
 package info.doyeah.api;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
+
 import com.google.vrtoolkit.cardboard.*;
 
 import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -234,10 +243,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
-        // Object first appears directly in front of user
-        Matrix.setIdentityM(mModelCube, 0);
-        Matrix.translateM(mModelCube, 0, 0, 0, -mObjectDistance);
-
         Matrix.setIdentityM(mModelFloor, 0);
         Matrix.translateM(mModelFloor, 0, 0, -mFloorDepth, 0); // Floor appears below user
 
@@ -270,6 +275,10 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     float eyez = 0;
     public String log;
     public float speed = 0;
+    float delta = 0;
+    float x = 1;
+    float y = 1;
+    float z = 1;
     /**
      * Prepares OpenGL ES before we draw a frame.
      * @param headTransform The head transformation in the new frame.
@@ -284,9 +293,16 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         mModelParam = GLES20.glGetUniformLocation(mGlProgram, "u_Model");
         mIsFloorParam = GLES20.glGetUniformLocation(mGlProgram, "u_IsFloor");
 
+        // Object first appears directly in front of user
+        Matrix.setIdentityM(mModelCube, 0);
+        Matrix.translateM(mModelCube, 0, 0, 0, -mObjectDistance);
         // Build the Model part of the ModelView matrix.
-       Matrix.rotateM(mModelCube, 0, TIME_DELTA, 0.5f, 0.5f, 1.0f);
-
+        delta += TIME_DELTA;
+        x += 0.001;
+        y += 0.001;
+        z += 0.001;
+        Matrix.rotateM(mModelCube, 0, delta, 0.5f, 0.5f, 1.0f);
+        Matrix.scaleM(mModelCube, 0, x, y, z);
         float [] forward = new float[3];
         headTransform.getForwardVector(forward, 0);
         float [] up = new float[3];
@@ -342,10 +358,13 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         drawCube();
 
         // Set mModelView for the floor, so we draw floor in the correct location
+        
         Matrix.multiplyMM(mModelView, 0, mView, 0, mModelFloor, 0);
         Matrix.multiplyMM(mModelViewProjection, 0, transform.getPerspective(), 0,
             mModelView, 0);
         drawFloor(transform.getPerspective());
+        
+        
     }
 
     @Override
@@ -383,7 +402,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
         checkGLError("Drawing cube");
     }
-
     /**
      * Draw the floor. This feeds in data for the floor into the shader. Note that this doesn't
      * feed in data about position of the light, so if we rewrite our code to draw the floor first,
