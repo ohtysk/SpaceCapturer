@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-
 /**
  * A Cardboard sample application.
  */
@@ -39,31 +38,38 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private static final float CAMERA_Z = 0.01f;
     private static final float TIME_DELTA = 0.3f;
-
-    private static final float YAW_LIMIT = 0.12f;
-    private static final float PITCH_LIMIT = 0.12f;
+    //private static final float YAW_LIMIT = 0.12f;
+    //private static final float PITCH_LIMIT = 0.12f;
 
     // We keep the light always position just above the user.
     private final float[] mLightPosInWorldSpace = new float[] {0.0f, 2.0f, 0.0f, 1.0f};
     private final float[] mLightPosInEyeSpace = new float[4];
 
-
     private int mGlProgram;
     private int mLightPosParam;
-
     private Object3D cube1;
+    private Object3D cube2;
     private Object3D floor;
     private float[] mCamera;
     private float[] mView;
     private float[] mHeadView;
-
-    private int mScore = 0;
+    public int score = 0;
     private float mObjectDistance = 12f;
     private float mFloorDepth = 20f;
-
     private Vibrator mVibrator;
-
     private CardboardOverlayView mOverlayView;
+    private float eyex = 0;
+    private float eyey = 0;
+    private float eyez = 0;
+    public String log;
+    public float speed = 0;
+    private float rotateDelta = 0;
+    private float scaleX = 1;
+    private float scaleY = 1;
+    private float scaleZ = 1;
+    private float transX = 0;
+    private float transY = 0;
+    private float transZ = -mObjectDistance;
 
     /**
      * Converts a raw text file, saved as a resource, into an OpenGL ES shader
@@ -121,16 +127,14 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         cardboardView.setRenderer(this);
         setCardboardView(cardboardView);
 
-        //mModelCube = new float[16];
         mCamera = new float[16];
         mView = new float[16];
         mHeadView = new float[16];
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
-
         mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay);
         mOverlayView.setMain(this);
-        //mOverlayView.show3DToast("Welcome to THE WORLD!");
+        mOverlayView.show3DToast("Welcome to THE WORLD!");
     }
 
     @Override
@@ -153,8 +157,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         Log.i(TAG, "onSurfaceCreated");
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 0.5f); // Dark background so text shows up well
 
-
-
         int vertexShader = loadGLShader(GLES20.GL_VERTEX_SHADER, R.raw.light_vertex);
         int gridShader = loadGLShader(GLES20.GL_FRAGMENT_SHADER, R.raw.grid_fragment);
 
@@ -162,13 +164,14 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         GLES20.glAttachShader(mGlProgram, vertexShader);
         GLES20.glAttachShader(mGlProgram, gridShader);
         GLES20.glLinkProgram(mGlProgram);
-
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
         cube1 = new Cube(mGlProgram, "cube1");
+        cube2 = new Cube(mGlProgram, "cube2");
         floor = new Floor(mGlProgram, "floor");
         floor.setIdentity();
         floor.translate(0, -mFloorDepth, 0);
+
         checkGLError("onSurfaceCreated");
     }
 
@@ -193,18 +196,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         }
         return "";
     }
-    float eyex = 0;
-    float eyey = 0;
-    float eyez = 0;
-    public String log;
-    public float speed = 0;
-    float rotateDelta = 0;
-    float scaleX = 1;
-    float scaleY = 1;
-    float scaleZ = 1;
-    float transX = 0;
-    float transY = 0;
-    float transZ = -mObjectDistance;
+
     /**
      * Prepares OpenGL ES before we draw a frame.
      * @param headTransform The head transformation in the new frame.
@@ -217,14 +209,18 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         // Object first appears directly in front of user
         cube1.setIdentity();
         cube1.translate(transX, transY, transZ);
+        cube2.setIdentity();
+        cube2.translate(transZ, transX, transY);
 
         // Build the Model part of the ModelView matrix.
         rotateDelta += TIME_DELTA;
         cube1.rotate(rotateDelta, 0.5f, 0.5f, 1.0f);
+        cube2.rotate(rotateDelta, 0.5f, 0.5f, 1.0f);
         scaleX += 0.001;
         scaleY += 0.001;
         scaleZ += 0.001;
         cube1.scale(scaleX, scaleY, scaleZ);
+        cube2.scale(scaleX / 2, scaleY / 2, scaleZ / 2);
 
         float [] forward = new float[3];
         headTransform.getForwardVector(forward, 0);
@@ -239,7 +235,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         
         // Build the camera matrix and apply it to the ModelView.
         Matrix.setLookAtM(mCamera, 0, 0.0f, 0.0f, CAMERA_Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-        //Matrix.setLookAtM(mCamera, 0, eyex, eyey, eyez, forward[0], -forward[1], forward[2], -up[0], up[1], -up[2]);
 
         headTransform.getHeadView(mHeadView, 0);
         checkGLError("onReadyToDraw");
@@ -265,7 +260,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         GLES20.glUniform3f(mLightPosParam, mLightPosInEyeSpace[0], mLightPosInEyeSpace[1],
                 mLightPosInEyeSpace[2]);
 
-        cube1.draw(mView, transform);        
+        cube1.draw(mView, transform);
+        cube2.draw(mView, transform);
         floor.draw(mView, transform);
     }
 
@@ -289,8 +285,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
      * Check if user is looking at object by calculating where the object is in eye-space.
      * @return
      */
+    /*
     private boolean isLookingAtObject() {
-    	/*
         float[] initVec = {0, 0, 0, 1.0f};
         float[] objPositionVec = new float[4];
 
@@ -305,8 +301,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
                 //+ "  Y: " + objPositionVec[1] + " Z: " + objPositionVec[2]);
         //Log.i(TAG, "Object Pitch: " + pitch +"  Yaw: " + yaw);
 
-        return (Math.abs(pitch) < PITCH_LIMIT) && (Math.abs(yaw) < YAW_LIMIT);
-    	 */
-    	return false;
+        return (Math.abs(pitch) < PITCH_LIMIT) && (Math.abs(yaw) < YAW_LIMIT); 
     }
+    */
 }

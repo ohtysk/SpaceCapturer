@@ -18,7 +18,7 @@ package info.doyeah.api;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -42,14 +42,14 @@ import android.widget.TextView;
  * Contains two sub-views to provide a simple stereo HUD.
  */
 public class CardboardOverlayView extends LinearLayout implements GestureDetector.OnDoubleTapListener, OnGestureListener {
-    private static final String TAG = CardboardOverlayView.class.getSimpleName();
+    //private static final String TAG = CardboardOverlayView.class.getSimpleName();
     private final CardboardOverlayEyeView mLeftView;
     private final CardboardOverlayEyeView mRightView;
     private AlphaAnimation mTextFadeAnimation;
 	private MainActivity mainActivity;
 	private GestureDetector gestureDetector;
-	Handler mHandler = new Handler();
-	Time time = new Time();
+	private Handler mHandler = new Handler();
+	private Time time = new Time();
     public CardboardOverlayView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setOrientation(HORIZONTAL);
@@ -85,7 +85,8 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
                     public void run() {
                     	time.setToNow();
                     	String timeString = time.year + "/" + (time.month + 1) + "/" + time.monthDay
-                    	        + " " + time.hour + ":" + time.minute+ ":" + time.second;
+                    	        + "\n" + time.hour + ":" + time.minute+ ":" + time.second + "\nscore "
+                    	        + mainActivity.score;
                     	show3DToast(timeString);
                     }
                 });
@@ -134,7 +135,8 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
 		this.mainActivity = mainActivity;
 	}
 
-    @Override
+    @SuppressLint("ClickableViewAccessibility")
+	@Override
     public boolean onTouchEvent(MotionEvent e) {
     	gestureDetector.onTouchEvent(e);
     	//show3DToast(mainActivity.log);
@@ -161,7 +163,7 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
             textView = new TextView(context, attrs);
             textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14.0f);
             textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
-            textView.setGravity(Gravity.LEFT);
+            textView.setGravity(Gravity.START);
             textView.setShadowLayer(3.0f, 0.0f, 0.0f, Color.DKGRAY);
             addView(textView);
         }
