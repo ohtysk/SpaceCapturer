@@ -16,15 +16,11 @@
 
 package info.doyeah.api;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-
 /**
  * Created by cjr on 6/18/14.
  */
-public final class Floor {
-    private static final float[] COORDS = new float[] {
+public final class Floor extends Object3D {
+    private static final float[] VERTICES = new float[] {
             200f, 0, -200f,
             -200f, 0, -200f,
             -200f, 0, 200f,
@@ -50,35 +46,8 @@ public final class Floor {
             0.0f, 0.3398f, 0.9023f, 1.0f,
             0.0f, 0.3398f, 0.9023f, 1.0f,
     };
-    private static final FloatBuffer vertices;
-    private static final FloatBuffer colors;
-    private static final FloatBuffer normals;
-    static {
-        ByteBuffer bbFloorVertices = ByteBuffer.allocateDirect(COORDS.length * 4);
-        bbFloorVertices.order(ByteOrder.nativeOrder());
-        vertices = bbFloorVertices.asFloatBuffer();
-        vertices.put(COORDS);
-        vertices.position(0);
-
-        ByteBuffer bbFloorNormals = ByteBuffer.allocateDirect(NORMALS.length * 4);
-        bbFloorNormals.order(ByteOrder.nativeOrder());
-        normals = bbFloorNormals.asFloatBuffer();
-        normals.put(NORMALS);
-        normals.position(0);
-
-        ByteBuffer bbFloorColors = ByteBuffer.allocateDirect(COLORS.length * 4);
-        bbFloorColors.order(ByteOrder.nativeOrder());
-        colors = bbFloorColors.asFloatBuffer();
-        colors.put(COLORS);
-        colors.position(0);
-    }
-    public static FloatBuffer getVertices() {
-    	return vertices;
-    }
-    public static FloatBuffer getColors() {
-    	return colors;
-    }
-    public static FloatBuffer getNormals() {
-    	return normals;
+    
+    Floor(int program, String name) {
+    	super(program, VERTICES, COLORS, NORMALS, true, name);
     }
 }
