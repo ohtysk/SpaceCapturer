@@ -232,7 +232,12 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
        	eyey += speed * up[2];
        	eyez -= speed * forward[2];
         
-        
+       	float [] location = new float[4];
+       	location[0] = -eyex;
+       	location[1] = -eyey;
+       	location[2] = -eyez;
+       	location[3] = 1;
+        cube1.include(location);
         // Build the camera matrix and apply it to the ModelView.
         Matrix.setLookAtM(mCamera, 0, 0.0f, 0.0f, CAMERA_Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
@@ -261,7 +266,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
                 mLightPosInEyeSpace[2]);
 
         cube1.draw(mView, transform);
-        cube2.draw(mView, transform);
+        //cube2.draw(mView, transform);
         floor.draw(mView, transform);
     }
 

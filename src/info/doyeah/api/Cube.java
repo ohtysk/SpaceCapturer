@@ -1,5 +1,8 @@
 package info.doyeah.api;
 
+import android.opengl.Matrix;
+import android.util.Log;
+
 public class Cube extends Object3D {
     public static final float[] VERTICES = new float[] {
         // Front face
@@ -153,5 +156,25 @@ public class Cube extends Object3D {
     
     Cube(int program, String name) {
     	super(program, VERTICES, COLORS, NORMALS, false, name);
+    }
+    
+    public boolean include(float [] location) {
+    	float [] inv = new float[16];
+    	Matrix.invertM(inv, 0, model, 0);
+    	float [] locationInModel = new float[4];
+    	Matrix.multiplyMV(locationInModel, 0, inv, 0, location, 0);
+    	//Matrix.multiplyMV(locationInModel, 0, model, 0, location, 0);
+    	float x = locationInModel[0] / locationInModel[3];
+    	float y = locationInModel[1] / locationInModel[3];
+    	float z = locationInModel[2] / locationInModel[3];
+    	//Log.d("location", location[0] + "," + location[1] + "," + location[2]);
+    	//Log.d("locInModel", x + "," + y + "," + z + "," + locationInModel[3]);
+    	if (0 <= Math.abs(x) && Math.abs(x) <= 1 &&
+    			0 <= Math.abs(y) && Math.abs(y) <= 1 &&
+    			0 <= Math.abs(z) && Math.abs(z) <= 1) {
+    		Log.d("include", "include");
+    		return true;
+    	}
+    	return false;
     }
 }

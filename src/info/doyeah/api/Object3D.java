@@ -21,7 +21,7 @@ public class Object3D {
 	private final int normalParam;
 	private final int colorParam;
 	private final int modelViewProjectionParam;
-	private float[] model = new float[16];
+	protected float[] model = new float[16];
 	private final float isFloorValue; 
 	private final int num;
 	private final String name;
@@ -107,5 +107,8 @@ public class Object3D {
 	    GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, num);
 	    MainActivity.checkGLError("Drawing " + name);
 	}
-
+	public boolean include(float [] location) {
+		return false;
+	};
+	
 }
