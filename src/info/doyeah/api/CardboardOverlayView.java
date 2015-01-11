@@ -84,9 +84,14 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
                 mHandler.post( new Runnable() {
                     public void run() {
                     	time.setToNow();
-                    	String timeString = time.year + "/" + (time.month + 1) + "/" + time.monthDay
-                    	        + "\n" + time.hour + ":" + time.minute+ ":" + time.second + "\nscore "
-                    	        + mainActivity.score;
+                    	String timeString = String.format("%04d/%02d/%02d%n%02d:%02d:%02d%nscore %d"
+                    			, time.year
+                    			, time.month + 1
+                    			, time.monthDay
+                    			, time.hour
+                    			, time.minute
+                    			, time.second
+                    			, mainActivity.score);
                     	show3DToast(timeString);
                     }
                 });
@@ -97,6 +102,7 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
     public void show3DToast(String message) {
         setText(message);
         setTextAlpha(1f);
+        /*
         mTextFadeAnimation.setAnimationListener(new EndAnimationListener() {
             @Override
             public void onAnimationEnd(Animation animation) {
@@ -104,6 +110,7 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
             }
         });
         startAnimation(mTextFadeAnimation);
+        */
     }
 
     private abstract class EndAnimationListener implements Animation.AnimationListener {
@@ -221,7 +228,7 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
                 (int) (leftMargin + width), (int) (topMargin + height * (1.0f - verticalTextPos)));
         }
     }
-    final float UNIT_SPEED = 0.08f; 
+
 	@Override
 	public boolean onDoubleTap(MotionEvent e) {
 		return false;
@@ -229,21 +236,14 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
 
 	@Override
 	public boolean onDoubleTapEvent(MotionEvent e) {
-		mainActivity.speed = - UNIT_SPEED;
+		mainActivity.speed = - mainActivity.UNIT_SPEED;
 		//show3DToast("back!");
-		mainActivity.onCardboardTrigger();
+		mainActivity.mVibrator.vibrate(50);
 		return false;
 	}
 
 	@Override
 	public boolean onSingleTapConfirmed(MotionEvent e) {
-		if (mainActivity.speed != 0.0f) {
-			mainActivity.speed = 0.0f;
-			//show3DToast("stop!");
-		} else {
-			mainActivity.speed = UNIT_SPEED;
-			//show3DToast("go!");
-		}
 		mainActivity.onCardboardTrigger();
 		return false;
 	}

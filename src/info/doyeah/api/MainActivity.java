@@ -56,7 +56,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     public int score = 0;
     private float mObjectDistance = 12f;
     private float mFloorDepth = 20f;
-    private Vibrator mVibrator;
+    Vibrator mVibrator;
     private CardboardOverlayView mOverlayView;
     private float eyex = 0;
     private float eyey = 0;
@@ -70,7 +70,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private float transX = 0;
     private float transY = 0;
     private float transZ = -mObjectDistance;
-
+    final float UNIT_SPEED = 0.08f; 
     /**
      * Converts a raw text file, saved as a resource, into an OpenGL ES shader
      * @param type The type of shader we will be creating.
@@ -237,7 +237,11 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
        	location[1] = -eyey;
        	location[2] = -eyez;
        	location[3] = 1;
-        cube1.include(location);
+        boolean include = cube1.include(location);
+        if (include) {
+        	score++;
+        	//mVibrator.vibrate(5);
+        }
         // Build the camera matrix and apply it to the ModelView.
         Matrix.setLookAtM(mCamera, 0, 0.0f, 0.0f, CAMERA_Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
@@ -282,6 +286,13 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     public void onCardboardTrigger() {
         Log.i(TAG, "onCardboardTrigger");
         // Always give user feedback
+		if (speed != 0.0f) {
+			speed = 0.0f;
+			//show3DToast("stop!");
+		} else {
+			speed = UNIT_SPEED;
+			//show3DToast("go!");
+		}
         mVibrator.vibrate(50);
     }
 
