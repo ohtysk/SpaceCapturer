@@ -92,52 +92,69 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
                     			, time.minute
                     			, time.second
                     			, mainActivity.score);
-                    	show3DToast(timeString);
+                    	showStatus(timeString);
                     }
                 });
             }
         }, 100, 1000);
+        
+    }
+
+    public void showStatus(String message) {
+        setStatusText(message);
+        setStatusTextAlpha(1f);
     }
 
     public void show3DToast(String message) {
-        setText(message);
-        setTextAlpha(1f);
-        /*
+        setToastText(message);
+        setToastTextAlpha(1f);
+        
         mTextFadeAnimation.setAnimationListener(new EndAnimationListener() {
             @Override
             public void onAnimationEnd(Animation animation) {
-                setTextAlpha(0f);
+                setToastTextAlpha(0f);
             }
         });
-        startAnimation(mTextFadeAnimation);
-        */
+        mLeftView.toastTextView.startAnimation(mTextFadeAnimation);
+        mRightView.toastTextView.startAnimation(mTextFadeAnimation);
     }
-
-    /*
+    
     private abstract class EndAnimationListener implements Animation.AnimationListener {
         @Override public void onAnimationRepeat(Animation animation) {}
         @Override public void onAnimationStart(Animation animation) {}
     }
-    */
+    
 
     private void setDepthOffset(float offset) {
         mLeftView.setOffset(offset);
         mRightView.setOffset(-offset);
     }
 
-    private void setText(String text) {
-        mLeftView.setText(text);
-        mRightView.setText(text);
+    private void setStatusText(String text) {
+        mLeftView.setStatusText(text);
+        mRightView.setStatusText(text);
     }
 
-    private void setTextAlpha(float alpha) {
-        mLeftView.setTextViewAlpha(alpha);
-        mRightView.setTextViewAlpha(alpha);
+    private void setStatusTextAlpha(float alpha) {
+        mLeftView.setStatusTextViewAlpha(alpha);
+        mRightView.setStatusTextViewAlpha(alpha);
+    }
+
+    private void setToastText(String text) {
+        mLeftView.setToastText(text);
+        mRightView.setToastText(text);
+    }
+
+    private void setToastTextAlpha(float alpha) {
+        mLeftView.setToastTextViewAlpha(alpha);
+        mRightView.setToastTextViewAlpha(alpha);
     }
 
     private void setColor(int color) {
-        mLeftView.setColor(color);
-        mRightView.setColor(color);
+        mLeftView.setStatusColor(color);
+        mLeftView.setToastColor(color);
+        mRightView.setStatusColor(color);
+        mRightView.setToastColor(color);
     }
 
 	public void setMain(MainActivity mainActivity) {
@@ -148,7 +165,6 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
 	@Override
     public boolean onTouchEvent(MotionEvent e) {
     	gestureDetector.onTouchEvent(e);
-    	//show3DToast(mainActivity.log);
 		return true;
     }
     /**
@@ -159,7 +175,8 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
      */
     private class CardboardOverlayEyeView extends ViewGroup {
         private final ImageView imageView;
-        private final TextView textView;
+        private final TextView statusTextView;
+        private final TextView toastTextView;
         private float offset;
 
         public CardboardOverlayEyeView(Context context, AttributeSet attrs) {
@@ -169,27 +186,45 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
             imageView.setAdjustViewBounds(true);  // Preserve aspect ratio.
             addView(imageView);
 
-            textView = new TextView(context, attrs);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14.0f);
-            textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
-            textView.setGravity(Gravity.START);
-            textView.setShadowLayer(3.0f, 0.0f, 0.0f, Color.DKGRAY);
-            addView(textView);
+            statusTextView = new TextView(context, attrs);
+            statusTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14.0f);
+            statusTextView.setTypeface(statusTextView.getTypeface(), Typeface.BOLD);
+            statusTextView.setGravity(Gravity.START);
+            statusTextView.setShadowLayer(3.0f, 0.0f, 0.0f, Color.DKGRAY);
+            addView(statusTextView);
+
+            toastTextView = new TextView(context, attrs);
+            toastTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20.0f);
+            toastTextView.setTypeface(toastTextView.getTypeface(), Typeface.BOLD);
+            toastTextView.setGravity(Gravity.CENTER);
+            toastTextView.setShadowLayer(3.0f, 0.0f, 0.0f, Color.DKGRAY);
+            addView(toastTextView);
         }
 
-        public void setColor(int color) {
+        public void setStatusColor(int color) {
             imageView.setColorFilter(color);
-            textView.setTextColor(color);
+            statusTextView.setTextColor(color);
         }
 
-        public void setText(String text) {
-            textView.setText(text);
+        public void setStatusText(String text) {
+            statusTextView.setText(text);
         }
 
-        public void setTextViewAlpha(float alpha) {
-            textView.setAlpha(alpha);
+        public void setStatusTextViewAlpha(float alpha) {
+            statusTextView.setAlpha(alpha);
         }
 
+        public void setToastColor(int color) {
+            toastTextView.setTextColor(color);
+        }
+
+        public void setToastText(String text) {
+            toastTextView.setText(text);
+        }
+
+        public void setToastTextViewAlpha(float alpha) {
+            toastTextView.setAlpha(alpha);
+        }
         public void setOffset(float offset) {
             this.offset = offset;
         }
@@ -225,9 +260,14 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
             leftMargin = 100;
             //topMargin = height * verticalTextPos;
             topMargin = 100;
-            textView.layout(
+            statusTextView.layout(
                 (int) leftMargin, (int) topMargin,
                 (int) (leftMargin + width), (int) (topMargin + height * (1.0f - verticalTextPos)));
+            leftMargin = 0;
+            topMargin = 900;
+            toastTextView.layout(
+                    (int) leftMargin, (int) (topMargin),
+                    (int) (leftMargin + width), (int) (topMargin + 200));
         }
     }
 
@@ -239,7 +279,7 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
 	@Override
 	public boolean onDoubleTapEvent(MotionEvent e) {
 		mainActivity.speed = - mainActivity.UNIT_SPEED;
-		//show3DToast("back!");
+		show3DToast("started to go back!");
 		mainActivity.mVibrator.vibrate(50);
 		return false;
 	}

@@ -20,10 +20,14 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.util.Log;
+
 import com.google.vrtoolkit.cardboard.*;
+
 import javax.microedition.khronos.egl.EGLConfig;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,11 +70,15 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private float scaleX = 0.5f;
     private float scaleY = 0.5f;
     private float scaleZ = 0.5f;
-    private float transX = 0;
-    private float transY = 0;
-    private float transZ = -mObjectDistance;
-    final float UNIT_SPEED = 0.08f;
+    private float positionX = 0;
+    private float positionY = 0;
+    private float positionZ = -mObjectDistance;
+    private float speedX = 0;
+    private float speedY = 0;
+    private float speedZ = 0;
     
+    final float UNIT_SPEED = 0.08f;
+    Handler mHandler = new Handler();
     /**
      * Converts a raw text file, saved as a resource, into an OpenGL ES shader
      * @param type The type of shader we will be creating.
@@ -207,7 +215,10 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         // Object first appears directly in front of user
         cube1.setIdentity();
-        cube1.translate(transX, transY, transZ);
+        positionX += speedX;
+        positionY += speedY;
+        positionZ += speedZ;
+        cube1.translate(positionX, positionY, positionZ);
         
         // Build the Model part of the ModelView matrix.
         rotateDelta += TIME_DELTA;
@@ -233,10 +244,17 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         boolean include = cube1.include(location);
         if (include) {
         	score++;
-        	transX = (float) (Math.random() * mObjectDistance - mObjectDistance / 2);
-        	transY = (float) (Math.random() * mObjectDistance - mObjectDistance / 2);
-        	transZ = (float) (Math.random() * mObjectDistance + mObjectDistance / 2);
-        	Log.d("a", transX + " " + transY + " " + transZ);
+        	positionX = (float) (Math.random() * mObjectDistance - mObjectDistance / 2);
+        	positionY = (float) (Math.random() * mObjectDistance / 2 - mObjectDistance / 2);
+        	positionZ = (float) (Math.random() * mObjectDistance + mObjectDistance / 2);
+        	speedX = (float) (Math.random() * UNIT_SPEED / 3);
+        	speedY = (float) (Math.random() * UNIT_SPEED / 3);
+        	speedZ = (float) (Math.random() * UNIT_SPEED / 3);
+        	mHandler.post(new Runnable() {
+        		public void run() {
+                	mOverlayView.show3DToast("touched!");        			
+        		}
+        	});
         	mVibrator.vibrate(50);
         }
         // Build the camera matrix and apply it to the ModelView.
@@ -284,36 +302,12 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         // Always give user feedback
 		if (speed != 0.0f) {
 			speed = 0.0f;
-			//show3DToast("stop!");
+			mOverlayView.show3DToast("stopped!");
 		} else {
 			speed = UNIT_SPEED;
-			//show3DToast("go!");
+			mOverlayView.show3DToast("started to go ahead!");
 		}
         mVibrator.vibrate(50);
     }
 
-
-    /**
-     * Check if user is looking at object by calculating where the object is in eye-space.
-     * @return
-     */
-    /*
-    private boolean isLookingAtObject() {
-        float[] initVec = {0, 0, 0, 1.0f};
-        float[] objPositionVec = new float[4];
-
-        // Convert object space to camera space. Use the headView from onNewFrame.
-        Matrix.multiplyMM(mModelView, 0, mHeadView, 0, mModelCube, 0);
-        Matrix.multiplyMV(objPositionVec, 0, mModelView, 0, initVec, 0);
-
-        float pitch = (float)Math.atan2(objPositionVec[1], -objPositionVec[2]);
-        float yaw = (float)Math.atan2(objPositionVec[0], -objPositionVec[2]);
-
-        //Log.i(TAG, "Object position: X: " + objPositionVec[0]
-                //+ "  Y: " + objPositionVec[1] + " Z: " + objPositionVec[2]);
-        //Log.i(TAG, "Object Pitch: " + pitch +"  Yaw: " + yaw);
-
-        return (Math.abs(pitch) < PITCH_LIMIT) && (Math.abs(yaw) < YAW_LIMIT); 
-    }
-    */
 }
