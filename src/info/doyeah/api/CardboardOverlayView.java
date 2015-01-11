@@ -113,10 +113,12 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
         */
     }
 
+    /*
     private abstract class EndAnimationListener implements Animation.AnimationListener {
         @Override public void onAnimationRepeat(Animation animation) {}
         @Override public void onAnimationStart(Animation animation) {}
     }
+    */
 
     private void setDepthOffset(float offset) {
         mLeftView.setOffset(offset);

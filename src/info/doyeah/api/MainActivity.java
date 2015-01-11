@@ -48,7 +48,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private int mGlProgram;
     private int mLightPosParam;
     private Object3D cube1;
-    private Object3D cube2;
     private Object3D floor;
     private float[] mCamera;
     private float[] mView;
@@ -64,13 +63,14 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     public String log;
     public float speed = 0;
     private float rotateDelta = 0;
-    private float scaleX = 1;
-    private float scaleY = 1;
-    private float scaleZ = 1;
+    private float scaleX = 0.5f;
+    private float scaleY = 0.5f;
+    private float scaleZ = 0.5f;
     private float transX = 0;
     private float transY = 0;
     private float transZ = -mObjectDistance;
-    final float UNIT_SPEED = 0.08f; 
+    final float UNIT_SPEED = 0.08f;
+    
     /**
      * Converts a raw text file, saved as a resource, into an OpenGL ES shader
      * @param type The type of shader we will be creating.
@@ -167,7 +167,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
         cube1 = new Cube(mGlProgram, "cube1");
-        cube2 = new Cube(mGlProgram, "cube2");
         floor = new Floor(mGlProgram, "floor");
         floor.setIdentity();
         floor.translate(0, -mFloorDepth, 0);
@@ -209,18 +208,12 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         // Object first appears directly in front of user
         cube1.setIdentity();
         cube1.translate(transX, transY, transZ);
-        cube2.setIdentity();
-        cube2.translate(transZ, transX, transY);
-
+        
         // Build the Model part of the ModelView matrix.
         rotateDelta += TIME_DELTA;
         cube1.rotate(rotateDelta, 0.5f, 0.5f, 1.0f);
-        cube2.rotate(rotateDelta, 0.5f, 0.5f, 1.0f);
-        scaleX += 0.001;
-        scaleY += 0.001;
-        scaleZ += 0.001;
+
         cube1.scale(scaleX, scaleY, scaleZ);
-        cube2.scale(scaleX / 2, scaleY / 2, scaleZ / 2);
 
         float [] forward = new float[3];
         headTransform.getForwardVector(forward, 0);
@@ -240,7 +233,11 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         boolean include = cube1.include(location);
         if (include) {
         	score++;
-        	//mVibrator.vibrate(5);
+        	transX = (float) (Math.random() * mObjectDistance - mObjectDistance / 2);
+        	transY = (float) (Math.random() * mObjectDistance - mObjectDistance / 2);
+        	transZ = (float) (Math.random() * mObjectDistance + mObjectDistance / 2);
+        	Log.d("a", transX + " " + transY + " " + transZ);
+        	mVibrator.vibrate(50);
         }
         // Build the camera matrix and apply it to the ModelView.
         Matrix.setLookAtM(mCamera, 0, 0.0f, 0.0f, CAMERA_Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
@@ -270,7 +267,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
                 mLightPosInEyeSpace[2]);
 
         cube1.draw(mView, transform);
-        //cube2.draw(mView, transform);
         floor.draw(mView, transform);
     }
 
