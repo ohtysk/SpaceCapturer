@@ -128,7 +128,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay);
         mOverlayView.setMain(this);
-        mOverlayView.show3DToast("Touch view to start!");
         
         game = new Game(this);
     }
@@ -248,8 +247,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         if (game.started()) {
         	cube1.draw(mView, transform);
+            floor.draw(mView, transform);
         }
-        floor.draw(mView, transform);
     }
 
     @Override
@@ -263,15 +262,36 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     @Override
     public void onCardboardTrigger() {
         Log.i(TAG, "onCardboardTrigger");
-        // Always give user feedback
-		if (speed != 0.0f) {
+        mVibrator.vibrate(50);
+        if (!game.started()) {
+        	game.start();
+        	eyex = 0;
+        	eyey = 0;
+        	eyez = 0;
+        	speed = 0;
+        	return;
+        }
+        if (speed != 0.0f) {
 			speed = 0.0f;
 			mOverlayView.show3DToast("stopped!");
 		} else {
 			speed = UNIT_SPEED;
 			mOverlayView.show3DToast("started to go ahead!");
 		}
-        mVibrator.vibrate(50);
     }
-
+    public void onDoubleTap() {
+        Log.i(TAG, "onDoubleTap");
+		mVibrator.vibrate(50);
+        if (!game.started()) {
+        	game.start();
+        	eyex = 0;
+        	eyey = 0;
+        	eyez = 0;
+        	speed = 0;
+        	return;
+        }
+        
+		speed = - UNIT_SPEED;
+		mOverlayView.show3DToast("started to go back!");
+    }
 }

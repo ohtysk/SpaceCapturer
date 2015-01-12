@@ -72,7 +72,7 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
         setVisibility(View.VISIBLE);
         
         mTextFadeAnimation = new AlphaAnimation(1.0f, 0.0f);
-        mTextFadeAnimation.setDuration(5000);
+        mTextFadeAnimation.setDuration(2000);
         gestureDetector = new GestureDetector(context, this);
 
         Timer mTimer = new Timer();
@@ -117,6 +117,10 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
         });
         mLeftView.toastTextView.startAnimation(mTextFadeAnimation);
         mRightView.toastTextView.startAnimation(mTextFadeAnimation);
+    }
+    public void showLast3DToast(String message) {
+        setToastText(message);
+        setToastTextAlpha(1f);
     }
     
     private abstract class EndAnimationListener implements Animation.AnimationListener {
@@ -264,10 +268,10 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
                 (int) leftMargin, (int) topMargin,
                 (int) (leftMargin + width), (int) (topMargin + height * (1.0f - verticalTextPos)));
             leftMargin = 0;
-            topMargin = 900;
+            topMargin = 750;
             toastTextView.layout(
                     (int) leftMargin, (int) (topMargin),
-                    (int) (leftMargin + width), (int) (topMargin + 200));
+                    (int) (leftMargin + width), (int) (topMargin + 300));
         }
     }
 
@@ -278,10 +282,13 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
 
 	@Override
 	public boolean onDoubleTapEvent(MotionEvent e) {
-		mainActivity.speed = - mainActivity.UNIT_SPEED;
-		show3DToast("started to go back!");
-		mainActivity.mVibrator.vibrate(50);
-		return false;
+		switch(e.getAction()) {
+		case MotionEvent.ACTION_UP:
+			mainActivity.onDoubleTap();
+			return false;
+		default:
+			return false;
+		}
 	}
 
 	@Override
