@@ -91,7 +91,7 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
                     			, time.hour
                     			, time.minute
                     			, time.second
-                    			, mainActivity.score);
+                    			, mainActivity.game.score);
                     	showStatus(timeString);
                     }
                 });

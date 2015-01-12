@@ -41,9 +41,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private static final String TAG = "MainActivity";
 
     private static final float CAMERA_Z = 0.01f;
-    private static final float TIME_DELTA = 0.3f;
-    //private static final float YAW_LIMIT = 0.12f;
-    //private static final float PITCH_LIMIT = 0.12f;
 
     // We keep the light always position just above the user.
     private final float[] mLightPosInWorldSpace = new float[] {0.0f, 2.0f, 0.0f, 1.0f};
@@ -51,32 +48,21 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private int mGlProgram;
     private int mLightPosParam;
-    private Object3D cube1;
+    Object3D cube1;
     private Object3D floor;
     private float[] mCamera;
     private float[] mView;
     private float[] mHeadView;
-    public int score = 0;
-    private float mObjectDistance = 12f;
+    float mObjectDistance = 10f;
     private float mFloorDepth = 20f;
     Vibrator mVibrator;
-    private CardboardOverlayView mOverlayView;
+    CardboardOverlayView mOverlayView;
     private float eyex = 0;
     private float eyey = 0;
     private float eyez = 0;
     public String log;
     public float speed = 0;
-    private float rotateDelta = 0;
-    private float scaleX = 0.5f;
-    private float scaleY = 0.5f;
-    private float scaleZ = 0.5f;
-    private float positionX = 0;
-    private float positionY = 0;
-    private float positionZ = -mObjectDistance;
-    private float speedX = 0;
-    private float speedY = 0;
-    private float speedZ = 0;
-    
+    Game game;
     final float UNIT_SPEED = 0.08f;
     Handler mHandler = new Handler();
     /**
@@ -142,7 +128,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay);
         mOverlayView.setMain(this);
-        mOverlayView.show3DToast("Welcome to THE WORLD!");
+        mOverlayView.show3DToast("Touch view to start!");
+        
+        game = new Game(this);
     }
 
     @Override
@@ -178,7 +166,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         floor = new Floor(mGlProgram, "floor");
         floor.setIdentity();
         floor.translate(0, -mFloorDepth, 0);
-
+        game.start();
         checkGLError("onSurfaceCreated");
     }
 
@@ -203,7 +191,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         }
         return "";
     }
-
+   	float [] location = new float[4];
     /**
      * Prepares OpenGL ES before we draw a frame.
      * @param headTransform The head transformation in the new frame.
@@ -212,20 +200,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     public void onNewFrame(HeadTransform headTransform) {
         GLES20.glUseProgram(mGlProgram);
         mLightPosParam = GLES20.glGetUniformLocation(mGlProgram, "u_LightPos");
-
-        // Object first appears directly in front of user
-        cube1.setIdentity();
-        positionX += speedX;
-        positionY += speedY;
-        positionZ += speedZ;
-        cube1.translate(positionX, positionY, positionZ);
         
-        // Build the Model part of the ModelView matrix.
-        rotateDelta += TIME_DELTA;
-        cube1.rotate(rotateDelta, 0.5f, 0.5f, 1.0f);
-
-        cube1.scale(scaleX, scaleY, scaleZ);
-
         float [] forward = new float[3];
         headTransform.getForwardVector(forward, 0);
         float [] up = new float[3];
@@ -236,28 +211,15 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
        	eyey += speed * up[2];
        	eyez -= speed * forward[2];
         
-       	float [] location = new float[4];
+
        	location[0] = -eyex;
        	location[1] = -eyey;
        	location[2] = -eyez;
        	location[3] = 1;
-        boolean include = cube1.include(location);
-        if (include) {
-        	score++;
-        	positionX = (float) (Math.random() * mObjectDistance - mObjectDistance / 2);
-        	positionY = (float) (Math.random() * mObjectDistance / 2 - mObjectDistance / 2);
-        	positionZ = (float) (Math.random() * mObjectDistance + mObjectDistance / 2);
-        	speedX = (float) (Math.random() * UNIT_SPEED / 3);
-        	speedY = (float) (Math.random() * UNIT_SPEED / 3);
-        	speedZ = (float) (Math.random() * UNIT_SPEED / 3);
-        	mHandler.post(new Runnable() {
-        		public void run() {
-                	mOverlayView.show3DToast("touched!");        			
-        		}
-        	});
-        	mVibrator.vibrate(50);
-        }
-        // Build the camera matrix and apply it to the ModelView.
+
+       	game.update();
+
+       	// Build the camera matrix and apply it to the ModelView.
         Matrix.setLookAtM(mCamera, 0, 0.0f, 0.0f, CAMERA_Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
         headTransform.getHeadView(mHeadView, 0);
@@ -284,7 +246,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         GLES20.glUniform3f(mLightPosParam, mLightPosInEyeSpace[0], mLightPosInEyeSpace[1],
                 mLightPosInEyeSpace[2]);
 
-        cube1.draw(mView, transform);
+        if (game.started()) {
+        	cube1.draw(mView, transform);
+        }
         floor.draw(mView, transform);
     }
 
