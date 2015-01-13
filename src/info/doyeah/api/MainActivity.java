@@ -38,14 +38,16 @@ import java.io.InputStreamReader;
  */
 public class MainActivity extends CardboardActivity implements CardboardView.StereoRenderer {
 
-    private static final String TAG = "MainActivity";
-
+    private static final int VIBRATION_SPAN = 50;
+	private static final int VECTOR_LENGTH = 4;
+	private static final int MATRIX_LENGTH = 16;
+	private static final int COMPILE_STATUS_LENGTH = 1;
+	private static final String TAG = "MainActivity";
     private static final float CAMERA_Z = 0.01f;
 
     // We keep the light always position just above the user.
     private final float[] mLightPosInWorldSpace = new float[] {0.0f, 2.0f, 0.0f, 1.0f};
-    private final float[] mLightPosInEyeSpace = new float[4];
-
+    private final float[] mLightPosInEyeSpace = new float[VECTOR_LENGTH];
     private int mGlProgram;
     private int mLightPosParam;
     Object3D cube1;
@@ -78,7 +80,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         GLES20.glCompileShader(shader);
 
         // Get the compilation status.
-        final int[] compileStatus = new int[1];
+        final int[] compileStatus = new int[COMPILE_STATUS_LENGTH];
         GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compileStatus, 0);
 
         // If the compilation failed, delete the shader.
@@ -121,9 +123,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         cardboardView.setRenderer(this);
         setCardboardView(cardboardView);
 
-        mCamera = new float[16];
-        mView = new float[16];
-        mHeadView = new float[16];
+        mCamera = new float[MATRIX_LENGTH];
+        mView = new float[MATRIX_LENGTH];
+        mHeadView = new float[MATRIX_LENGTH];
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay);
@@ -190,7 +192,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         }
         return "";
     }
-   	float [] location = new float[4];
+   	float [] location = new float[VECTOR_LENGTH];
     /**
      * Prepares OpenGL ES before we draw a frame.
      * @param headTransform The head transformation in the new frame.
@@ -234,7 +236,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     public void onDrawEye(EyeTransform transform) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
-        float [] eyeview = new float[16];//
+        float [] eyeview = new float[MATRIX_LENGTH];//
         eyeview = transform.getEyeView();//
         Matrix.translateM(eyeview, 0, eyex, eyey, eyez);//
         // Apply the eye transformation to the camera.
@@ -262,7 +264,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     @Override
     public void onCardboardTrigger() {
         Log.i(TAG, "onCardboardTrigger");
-        mVibrator.vibrate(50);
+        mVibrator.vibrate(VIBRATION_SPAN);
         if (!game.started()) {
         	game.start();
         	eyex = 0;
@@ -281,7 +283,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     }
     public void onDoubleTap() {
         Log.i(TAG, "onDoubleTap");
-		mVibrator.vibrate(50);
+		mVibrator.vibrate(VIBRATION_SPAN);
         if (!game.started()) {
         	game.start();
         	eyex = 0;

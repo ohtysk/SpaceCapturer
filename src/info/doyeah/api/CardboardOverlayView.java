@@ -42,7 +42,6 @@ import android.widget.TextView;
  * Contains two sub-views to provide a simple stereo HUD.
  */
 public class CardboardOverlayView extends LinearLayout implements GestureDetector.OnDoubleTapListener, OnGestureListener {
-    //private static final String TAG = CardboardOverlayView.class.getSimpleName();
     private final CardboardOverlayEyeView mLeftView;
     private final CardboardOverlayEyeView mRightView;
     private AlphaAnimation mTextFadeAnimation;
@@ -50,7 +49,8 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
 	private GestureDetector gestureDetector;
 	private Handler mHandler = new Handler();
 	private Time time = new Time();
-    public CardboardOverlayView(Context context, AttributeSet attrs) {
+
+	public CardboardOverlayView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setOrientation(HORIZONTAL);
 
@@ -66,7 +66,6 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
         mRightView.setLayoutParams(params);
         addView(mRightView);
 
-        // Set some reasonable defaults.
         setDepthOffset(0.0016f);
         setColor(Color.rgb(150, 255, 180));
         setVisibility(View.VISIBLE);
@@ -80,9 +79,9 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
         mTimer.schedule(new TimerTask(){
             @Override
             public void run() {
-                // mHandlerを通じてUI Threadへ処理をキューイング
                 mHandler.post( new Runnable() {
-                    public void run() {
+                    @SuppressLint("DefaultLocale")
+					public void run() {
                     	time.setToNow();
                     	String timeString = String.format("%04d/%02d/%02d%n%02d:%02d:%02d%nscore %d"
                     			, time.year
@@ -171,12 +170,7 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
     	gestureDetector.onTouchEvent(e);
 		return true;
     }
-    /**
-     * A simple view group containing some horizontally centered text underneath a horizontally
-     * centered image.
-     *
-     * This is a helper class for CardboardOverlayView.
-     */
+
     private class CardboardOverlayEyeView extends ViewGroup {
         private final ImageView imageView;
         private final TextView statusTextView;
@@ -259,14 +253,14 @@ public class CardboardOverlayView extends LinearLayout implements GestureDetecto
                 (int) leftMargin, (int) topMargin,
                 (int) (leftMargin + width * imageSize), (int) (topMargin + height * imageSize));
 
-            // Layout TextView
-            //leftMargin = offset * width;
+            // Layout statusTextView
             leftMargin = 100;
-            //topMargin = height * verticalTextPos;
             topMargin = 100;
             statusTextView.layout(
                 (int) leftMargin, (int) topMargin,
                 (int) (leftMargin + width), (int) (topMargin + height * (1.0f - verticalTextPos)));
+
+            // Layout toastTextView
             leftMargin = 0;
             topMargin = 750;
             toastTextView.layout(

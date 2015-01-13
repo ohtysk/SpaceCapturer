@@ -1,12 +1,14 @@
+/*
+ * Copyright 2015 Yuusuke Ohta. All Rights Reserved.
+ */
+
 package info.doyeah.api;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-
 import com.google.vrtoolkit.cardboard.EyeTransform;
 
 public class Object3D {
@@ -109,6 +111,5 @@ public class Object3D {
 	}
 	public boolean include(float [] location) {
 		return false;
-	};
-	
+	}	
 }

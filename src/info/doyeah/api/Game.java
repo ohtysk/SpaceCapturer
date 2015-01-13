@@ -1,36 +1,44 @@
+/*
+ * Copyright 2015 Yuusuke Ohta. All Rights Reserved.
+ */
+
 package info.doyeah.api;
 
 import android.text.format.Time;
 
-public class Game {
+final class Game {
 	private boolean started = false;
 	private MainActivity main;
-    float rotateDelta = 0;
-    float scaleX = 0.5f;
-    float scaleY = 0.5f;
-    float scaleZ = 0.5f;
-    float positionX = 0;
-    float positionY = 0;
-    float positionZ = 0;
-    float speedX = 0;
-    float speedY = 0;
-    float speedZ = 0;
+    private float rotateDelta = 0;
+    private float scaleX = 0.5f;
+    private float scaleY = 0.5f;
+    private float scaleZ = 0.5f;
+    private float positionX = 0;
+    private float positionY = 0;
+    private float positionZ = 0;
+    private float speedX = 0;
+    private float speedY = 0;
+    private float speedZ = 0;
     public int score = 0;
-    final int step = 1;
+    private final int step = 1;
     static final float TIME_DELTA = 0.3f;
     private Time startTime = new Time();
-    long counter = 0;
+    private long counter = 0;
+
     private Runnable touched = new Runnable() {
 		public void run() {
 			main.mOverlayView.show3DToast("touched!");        			
 		}
 	};
+
 	public Game(MainActivity main) {
 		this.main = main;
 	}
+
 	public boolean started() {
 		return started;
 	}
+
 	public void start() {
 		started = true;
 		score = 0;
@@ -46,12 +54,14 @@ public class Game {
 	    speedZ = 0;
 		positionZ = -main.mObjectDistance;
 		startTime.setToNow();
-    	main.mHandler.post(new Runnable() {
+
+		main.mHandler.post(new Runnable() {
     		public void run() {
     	        main.mOverlayView.showLast3DToast("Touch view to start!");
     		}
     	});
 	}
+
 	public void end() {
 		started = false;
 		Time endTime = new Time();
@@ -64,6 +74,7 @@ public class Game {
     		}
     	});
 	}
+
 	public void update() {
 		if (!started) {
 			return;
@@ -82,13 +93,13 @@ public class Game {
 			stage5();
 		}
 	}
+
 	private void stage1() {
         main.cube1.translate(positionX, positionY, positionZ);
-        // Build the Model part of the ModelView matrix.
         rotateDelta += TIME_DELTA;
         main.cube1.rotate(rotateDelta, 0.5f, 0.5f, 1.0f);
-
         main.cube1.scale(scaleX, scaleY, scaleZ);
+
         boolean include = main.cube1.include(main.location);
         if (include) {
         	score++;
@@ -104,10 +115,8 @@ public class Game {
         positionY += speedY;
         positionZ += speedZ;
         main.cube1.translate(positionX, positionY, positionZ);
-        // Build the Model part of the ModelView matrix.
         rotateDelta += TIME_DELTA;
         main.cube1.rotate(rotateDelta, 0.5f, 0.5f, 1.0f);
-
         main.cube1.scale(scaleX, scaleY, scaleZ);
         
         boolean include = main.cube1.include(main.location);
@@ -123,6 +132,7 @@ public class Game {
         	main.mVibrator.vibrate(50);
         }
 	}
+
 	public void stage3() {
 		int cycle = (int) (counter % 180);
 		double radian = cycle * Math.PI / 90;
@@ -132,10 +142,8 @@ public class Game {
         positionY += speedY * speedFactor;
         positionZ += speedZ * speedFactor;
         main.cube1.translate(positionX, positionY, positionZ);
-        // Build the Model part of the ModelView matrix.
         rotateDelta += TIME_DELTA;
         main.cube1.rotate(rotateDelta, 0.5f, 0.5f, 1.0f);
-
         float scaleFactor = (-factor + 7) / 8;
         main.cube1.scale(scaleX * scaleFactor, scaleY * scaleFactor, scaleZ * scaleFactor);
         
@@ -152,6 +160,7 @@ public class Game {
         	main.mVibrator.vibrate(50);
         }
 	}
+
 	public void stage4() {
 		int cycle = (int) (counter % 180);
 		if (cycle == 0) {
@@ -166,10 +175,8 @@ public class Game {
         positionY += speedY * speedFactor;
         positionZ += speedZ * speedFactor;
         main.cube1.translate(positionX, positionY, positionZ);
-        // Build the Model part of the ModelView matrix.
         rotateDelta += TIME_DELTA;
         main.cube1.rotate(rotateDelta, 0.5f, 0.5f, 1.0f);
-
         float scaleFactor = (-factor + 7) / 8;
         main.cube1.scale(scaleX * scaleFactor, scaleY * scaleFactor, scaleZ * scaleFactor);
         
@@ -186,6 +193,7 @@ public class Game {
         	main.mVibrator.vibrate(50);
         }
 	}
+
 	public void stage5() {
 		int cycle = (int) (counter % 5);
 		if (cycle == 0) {
@@ -197,10 +205,8 @@ public class Game {
         positionY += speedY;
         positionZ += speedZ;
         main.cube1.translate(positionX, positionY, positionZ);
-        // Build the Model part of the ModelView matrix.
         rotateDelta += TIME_DELTA;
         main.cube1.rotate(rotateDelta, 0.5f, 0.5f, 1.0f);
-
         main.cube1.scale(scaleX, scaleY, scaleZ);
         
         boolean include = main.cube1.include(main.location);
