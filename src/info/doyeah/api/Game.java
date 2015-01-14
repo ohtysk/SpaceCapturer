@@ -106,6 +106,9 @@ final class Game {
         	positionX = (float) (Math.random() * main.mObjectDistance - main.mObjectDistance / 2);
         	positionY = (float) (Math.random() * main.mObjectDistance / 2 - main.mObjectDistance / 2);
         	positionZ = (float) (Math.random() * main.mObjectDistance + main.mObjectDistance / 2);
+        	speedX = (float) ((Math.random() - 0.5) * main.UNIT_SPEED / 3);
+        	speedY = (float) ((Math.random() - 0.5) * main.UNIT_SPEED / 3);
+        	speedZ = (float) ((Math.random() - 0.5) * main.UNIT_SPEED / 3);
         	main.mHandler.post(touched);
         	main.mVibrator.vibrate(50);
         }
