@@ -5,11 +5,11 @@ This android app is a simple game using [google cardboard](https://www.google.co
 
 ## How to play
 
-0. Start app.
-1. Search a cube in the virtual space.
-2. Get near the cube.
-3. Touch the cube.
-4. Repeat from step 1.
+1. Start app.
+2. Search a cube in the virtual space.
+3. Get near the cube.
+4. Touch the cube.
+5. Repeat from step 2.
 
 ## Operation
 
